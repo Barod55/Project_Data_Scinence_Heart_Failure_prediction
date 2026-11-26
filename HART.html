@@ -811,11 +811,21 @@
       margin: 0;
       padding: 12px 14px;
       border-radius: var(--radius-md);
-      background: var(--surface);
-      border: 1px solid var(--line);
-      color: var(--muted);
+      background: var(--heart-soft);
+      border: 1px solid color-mix(in srgb, var(--heart) 38%, transparent);
+      border-left: 4px solid var(--heart);
+      color: var(--heart);
       font-size: 0.78rem;
       line-height: 1.45;
+    }
+    .disclaimer strong {
+      color: var(--heart);
+    }
+
+    /* Hide raw code & CSV output boxes while keeping all logic and API flow intact */
+    .code-panel,
+    .prediction-box {
+      display: none !important;
     }
 
     /* ============================================================
@@ -1901,7 +1911,6 @@
       verdictPill.className = `verdict-pill ${risk.cls}`;
       verdictPill.textContent = `${prediction.result} (${pct.toFixed(1)}%)`;
 
-      // Reset arc briefly for smooth transition
       gaugeArc.style.stroke = risk.css;
       gaugeArc.style.strokeDashoffset = "100";
       requestAnimationFrame(() => {
@@ -1926,7 +1935,6 @@
       const risk = getRiskColor(prob);
       radarPatientSwatch.style.background = risk.css;
 
-      // Normalize 6 clinical strain dimensions (0 = minimal strain, 100 = high clinical strain)
       const bpScore = clamp(((p.RestingBP - 95) / 85) * 100, 12, 100);
       const cholScore = clamp(((p.Cholesterol - 140) / 180) * 100, 12, 100);
       const oldpeakScore = clamp(((Math.max(0, p.Oldpeak)) / 3.2) * 100, 10, 100);
