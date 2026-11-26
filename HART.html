@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heart Failure Prediction | Clinical ML Platform</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --bg-subtle: #e8eff5;
+      --surface: #ffffff;
+      --surface-elevated: #ffffff;
+      --field: #f8fafc;
+      --field-hover: #f1f5f9;
+      --ink: #0f172a;
+      --ink-secondary: #334155;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --line-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: rgba(2, 132, 199, 0.1);
+      --accent-ink: #ffffff;
+      --teal: #0d9488;
+      --heart: #e11d48;
+      --heart-soft: rgba(225, 29, 72, 0.12);
+      --success: #059669;
+      --success-soft: rgba(5, 150, 105, 0.12);
+      --focus: #0284c7;
+      --error: #dc2626;
+      --error-soft: rgba(220, 38, 38, 0.08);
+      --warn: #d97706;
+      --warn-soft: rgba(217, 119, 6, 0.12);
+      --monitor-bg: #07131a;
+      --monitor-grid: rgba(56, 189, 248, 0.08);
+      --code-bg: #0b1220;
+      --code-ink: #e2e8f0;
+      --code-num: #38bdf8;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 8px 24px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+      color-scheme: light;
+    }
+
+    [data-theme="dark"] {
+      --bg: #070d14;
+      --bg-subtle: #0c1520;
+      --surface: #0f1926;
+      --surface-elevated: #132131;
+      --field: #0a121c;
+      --field-hover: #101c2a;
+      --ink: #f1f5f9;
+      --ink-secondary: #cbd5e1;
+      --muted: #8da2b8;
+      --line: #1e2f42;
+      --line-strong: #2c435c;
+      --accent: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --accent-ink: #04131f;
+      --teal: #2dd4bf;
+      --heart: #fb7185;
+      --heart-soft: rgba(251, 113, 133, 0.15);
+      --success: #34d399;
+      --success-soft: rgba(52, 211, 153, 0.14);
+      --focus: #38bdf8;
+      --error: #f87171;
+      --error-soft: rgba(248, 113, 113, 0.12);
+      --warn: #fbbf24;
+      --warn-soft: rgba(251, 191, 36, 0.14);
+      --monitor-bg: #050c12;
+      --monitor-grid: rgba(56, 189, 248, 0.09);
+      --code-bg: #060b13;
+      --code-ink: #e2e8f0;
+      --code-num: #38bdf8;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 14px 36px -10px rgba(0, 0, 0, 0.55);
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Top Enterprise Navbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.14), rgba(2, 132, 199, 0.14));
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .brand-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--heart);
+      animation: heartbeat 0.933s ease-in-out infinite;
+    }
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .brand-text span {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--success-soft);
+      color: var(--success);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+    .badge[data-state="idle"] {
+      background: var(--bg-subtle);
+      color: var(--muted);
+    }
+    .badge[data-state="idle"] .badge-dot { box-shadow: none; }
+    .badge[data-state="progress"] {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink-secondary);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+    }
+    .icon-btn:hover {
+      border-color: var(--line-strong);
+      background: var(--field-hover);
+      color: var(--ink);
+    }
+    .icon-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      14% { transform: scale(1.18); }
+      26% { transform: scale(1); }
+      38% { transform: scale(1.09); }
+      52% { transform: scale(1); }
+    }
+
+    /* Page Container */
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 24px 56px;
+    }
+
+    /* Live Clinical ECG Monitor Banner */
+    .telemetry-banner {
+      position: relative;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(var(--monitor-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--monitor-grid) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.18), transparent 55%),
+        var(--monitor-bg);
+      background-size: 20px 20px, 20px 20px, 100% 100%, 100% 100%;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      color: #f8fafc;
+      padding: 22px 26px 54px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+    }
+    .telemetry-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+    }
+    .telemetry-title {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+    .telemetry-sub {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: rgba(203, 213, 225, 0.8);
+    }
+    .telemetry-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .metric-pill {
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      min-width: 112px;
+    }
+    .metric-pill .k {
+      display: block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .metric-pill .v {
+      display: block;
+      font-size: 0.98rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #38bdf8;
+      margin-top: 2px;
+    }
+
+    /* Realistic Looping Hospital Monitor ECG Trace */
+    .ecg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 6px;
+      width: 100%;
+      height: 44px;
+      z-index: 1;
+    }
+    .ecg path {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .ecg-base {
+      stroke: rgba(45, 212, 191, 0.34);
+      stroke-width: 2;
+      stroke-dasharray: 88 12;
+      animation: ecg-base 2.8s linear infinite;
+    }
+    .ecg-trail {
+      stroke: rgba(56, 189, 248, 0.92);
+      stroke-width: 2.3;
+      stroke-dasharray: 22 78;
+      filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.8));
+      animation: ecg-trail 2.8s linear infinite;
+    }
+    .ecg-tip {
+      stroke: #ffffff;
+      stroke-width: 3.2;
+      stroke-dasharray: 2.4 97.6;
+      filter: drop-shadow(0 0 7px #7dd3fc);
+      animation: ecg-tip 2.8s linear infinite;
+    }
+    @keyframes ecg-base  { from { stroke-dashoffset: 88; }  to { stroke-dashoffset: -12; } }
+    @keyframes ecg-trail { from { stroke-dashoffset: 22; }  to { stroke-dashoffset: -78; } }
+    @keyframes ecg-tip   { from { stroke-dashoffset: 2.4; } to { stroke-dashoffset: -97.6; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .brand-icon svg, .ecg path { animation: none; }
+      .ecg-base { stroke-dasharray: none; stroke: rgba(56, 189, 248, 0.6); }
+      .ecg-trail, .ecg-tip { display: none; }
+    }
+
+    /* Main 2-Column Workspace */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(310px, 0.95fr);
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 940px) {
+      .workspace { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* Section Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card + .card { margin-top: 18px; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .card-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .card-head h2, .card-head h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .card-head span {
+      margin-left: auto;
+      font-size: 0.74rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 20px;
+    }
+    .field-full { grid-column: 1 / -1; }
+
+    @media (max-width: 580px) {
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .topbar-inner { padding: 12px 16px; gap: 10px; }
+      .shell { padding: 16px 16px 40px; }
+      .brand { gap: 10px; min-width: 0; }
+      .brand-text h1 { font-size: 0.95rem; }
+      .brand-text span { display: none; }
+      .topbar-right { gap: 8px; flex: none; }
+      .badge { padding: 5px 9px; font-size: 0.72rem; gap: 6px; white-space: nowrap; }
+      #themeLabel { display: none; }
+      .icon-btn { padding: 0 10px; }
+      .actions .btn-primary { flex: 1 0 100%; }
+      .actions .btn-secondary { flex: 1; }
+    }
+
+    fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+
+    .field label, .field legend {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      padding: 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink-secondary);
+    }
+    .field legend { width: 100%; }
+    .col-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 6px;
+    }
+
+    /* Input with integrated inline unit badge */
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrap input[type="number"] {
+      width: 100%;
+      padding: 10px 72px 10px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--field);
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.93rem;
+      font-variant-numeric: tabular-nums;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .input-wrap.wide-unit input[type="number"] {
+      padding-right: 112px;
+    }
+    .input-wrap input[type="number"]:hover {
+      background: var(--field-hover);
+    }
+    .input-wrap input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .input-wrap input[type="number"]:invalid:not(:placeholder-shown) {
+      border-color: var(--error);
+    }
+    .unit-tag {
+      position: absolute;
+      right: 10px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--muted);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Enterprise Segmented Control */
+    .seg {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 3px;
+      background: var(--field);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      gap: 4px;
+    }
+    .seg.seg-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .seg.seg-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    @media (max-width: 580px) {
+      .seg.seg-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    .seg input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .seg label {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .seg.seg-3 label {
+      padding: 8px 4px;
+      font-size: 0.8rem;
+      gap: 3px;
+      white-space: nowrap;
+    }
+    .seg label:hover {
+      color: var(--ink);
+      background: var(--field-hover);
+    }
+    .seg input:checked + label {
+      background: var(--accent);
+      color: var(--accent-ink);
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+    }
+    .seg input:focus-visible + label {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .seg .bit {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem;
+      opacity: 0.72;
+    }
+
+    .seg.seg-stack label {
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 6px;
+      font-size: 0.84rem;
+      line-height: 1.25;
+      text-align: center;
+      white-space: normal;
+    }
+    @media (max-width: 380px) {
+      .seg.seg-stack label { padding: 8px 3px; font-size: 0.74rem; }
+    }
+
+    /* Invalid States */
+    .field.invalid .input-wrap input[type="number"],
+    .field.invalid .seg {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px var(--error-soft);
+    }
+    .field.invalid > label,
+    .field.invalid > legend {
+      color: var(--error);
+    }
+
+    .form-error {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border: 1px solid var(--error);
+      border-left-width: 4px;
+      border-radius: var(--radius-sm);
+      background: var(--error-soft);
+      color: var(--error);
+      font-size: 0.85rem;
+      white-space: pre-line;
+    }
+    .form-error[hidden] { display: none; }
+
+    .noscript {
+      margin: 0 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--error);
+      border-left-width: 4px;
+      border-radius: var(--radius-sm);
+      background: var(--error-soft);
+      color: var(--error);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Form Actions */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .btn-primary {
+      flex: 1;
+      min-width: 180px;
+      border: 0;
+      background: var(--accent);
+      color: var(--accent-ink);
+      box-shadow: 0 2px 10px rgba(2, 132, 199, 0.25);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: progress;
+    }
+    .btn-secondary {
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--ink-secondary);
+    }
+    .btn-secondary:hover {
+      background: var(--field-hover);
+      color: var(--ink);
+    }
+
+    /* Sticky Right Inspector Sidebar */
+    .inspector {
+      position: sticky;
+      top: 84px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      margin-bottom: 8px;
+    }
+    .progress-track {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--teal));
+      transition: width 0.25s ease;
+    }
+
+    .code-panel {
+      border-radius: var(--radius-md);
+      background: var(--code-bg);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      overflow: hidden;
+    }
+    .code-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .code-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .copy-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .copy-btn:hover:not(:disabled) {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+    .copy-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .code-panel pre {
+      margin: 0;
+      padding: 14px;
+      color: var(--code-num);
+      font: 0.86rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .status {
+      margin: 12px 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .status.error { color: var(--error); }
+    .range-note {
+      margin: 10px 0 0;
+      padding: 9px 11px;
+      border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--line));
+      border-left-width: 4px;
+      border-radius: var(--radius-sm);
+      background: var(--warn-soft);
+      color: var(--warn);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+    .range-note[hidden] { display: none; }
+
+    /* Compact Live Vector Index Map */
+    .vector-list {
+      margin-top: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .vec-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: var(--field);
+      border: 1px solid var(--line);
+      font-size: 0.74rem;
+    }
+    .vec-item .idx {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .vec-item .val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .vec-item.filled {
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+      background: var(--accent-soft);
+    }
+    .vec-item.filled .val {
+      color: var(--accent);
+    }
+
+    .prediction-box {
+      margin-top: 12px;
+      border-radius: var(--radius-md);
+      background: var(--code-bg);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      overflow: hidden;
+    }
+    .prediction-box[hidden] { display: none; }
+    .prediction-box pre {
+      margin: 0;
+      padding: 12px;
+      color: #34d399;
+      font: 0.84rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-x: auto;
+    }
+
+    .disclaimer {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    /* ============================================================
+       PATIENT ANALYTICS & RISK DASHBOARD
+       ============================================================ */
+    .analytics-section {
+      margin-top: 28px;
+      animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .analytics-section[hidden] { display: none; }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .analytics-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .analytics-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .analytics-header p {
+      margin: 2px 0 0;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    .verdict-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .verdict-pill.risk-low {
+      background: var(--success-soft);
+      color: var(--success);
+      border-color: color-mix(in srgb, var(--success) 30%, transparent);
+    }
+    .verdict-pill.risk-mod {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-color: color-mix(in srgb, var(--warn) 35%, transparent);
+    }
+    .verdict-pill.risk-high {
+      background: var(--heart-soft);
+      color: var(--heart);
+      border-color: color-mix(in srgb, var(--heart) 35%, transparent);
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .analytics-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    .analytics-grid .card { margin-top: 0; }
+
+    /* Gauge Chart Card */
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 0 4px;
+    }
+    .gauge-svg {
+      width: 100%;
+      max-width: 310px;
+      height: auto;
+      overflow: visible;
+    }
+    .gauge-track {
+      fill: none;
+      stroke: var(--bg-subtle);
+      stroke-width: 18;
+      stroke-linecap: round;
+    }
+    .gauge-arc {
+      fill: none;
+      stroke-width: 18;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease;
+    }
+    .gauge-pct {
+      font-size: 2.25rem;
+      font-weight: 800;
+      fill: var(--ink);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.03em;
+    }
+    .gauge-sub {
+      font-size: 0.72rem;
+      font-weight: 700;
+      fill: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .gauge-tick {
+      font-size: 0.68rem;
+      fill: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Split Probability Bar */
+    .split-bar-wrap {
+      width: 100%;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .split-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .split-track {
+      display: flex;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--bg-subtle);
+      gap: 2px;
+    }
+    .split-risk {
+      height: 100%;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .split-safe {
+      height: 100%;
+      background: var(--success);
+      opacity: 0.75;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .model-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+      margin-top: 14px;
+    }
+    .meta-chip {
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--field);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    .meta-chip .mk {
+      display: block;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .meta-chip .mv {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Radar Chart Card */
+    .radar-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .radar-svg {
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      overflow: visible;
+    }
+    .radar-grid {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 1;
+    }
+    .radar-axis {
+      stroke: var(--line-strong);
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+    }
+    .radar-ref {
+      fill: color-mix(in srgb, var(--success) 14%, transparent);
+      stroke: var(--success);
+      stroke-width: 1.8;
+      stroke-dasharray: 4 3;
+    }
+    .radar-patient {
+      stroke-width: 2.4;
+      stroke-linejoin: round;
+      transition: all 0.6s ease;
+    }
+    .radar-dot {
+      stroke: var(--surface);
+      stroke-width: 2;
+      cursor: pointer;
+      transition: r 0.15s ease;
+    }
+    .radar-dot:hover { r: 6.5; }
+    .radar-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      fill: var(--ink-secondary);
+    }
+    .radar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .radar-tip {
+      margin-top: 10px;
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--field);
+      border: 1px solid var(--line);
+      font-size: 0.77rem;
+      color: var(--ink-secondary);
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Biomarker Range Bullet Charts */
+    .vital-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .vital-row-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .vital-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .vital-val-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vital-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .pill-status {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .pill-status.ok { background: var(--success-soft); color: var(--success); }
+    .pill-status.warn { background: var(--warn-soft); color: var(--warn); }
+    .pill-status.high { background: var(--heart-soft); color: var(--heart); }
+
+    .range-track-outer {
+      position: relative;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      display: flex;
+      overflow: visible;
+    }
+    .range-zone {
+      height: 100%;
+      opacity: 0.28;
+    }
+    .range-zone:first-child { border-radius: 999px 0 0 999px; }
+    .range-zone:last-of-type { border-radius: 0 999px 999px 0; }
+    .zone-green { background: var(--success); }
+    .zone-amber { background: var(--warn); }
+    .zone-red { background: var(--heart); }
+
+    .ref-marker {
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      background: var(--ink-secondary);
+      opacity: 0.65;
+      transform: translateX(-50%);
+    }
+    .patient-pin {
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 3px solid var(--surface);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+      transform: translate(-50%, -50%);
+      transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .vital-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* Clinical Signal Breakdown Card */
+    .signal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+    .signal-item {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: var(--field);
+      border: 1px solid var(--line);
+    }
+    .signal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .signal-title {
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .signal-sub {
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .signal-bar-bg {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      overflow: hidden;
+    }
+    .signal-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+    .analytics-footnote {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <div class="brand-text">
+          <h1>Heart Failure Prediction</h1>
+          <span>Clinical Machine Learning Suite</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge" id="readyBadge" data-state="idle"><span class="badge-dot"></span><span id="readyText">Awaiting input</span></span>
+        <button type="button" class="icon-btn" id="themeToggle" aria-label="Toggle color theme">
+          <svg id="themeIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="themeLabel">Dark</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section class="telemetry-banner" aria-label="Live cardiac telemetry header">
+      <div class="telemetry-top">
+        <div>
+          <h2 class="telemetry-title">Clinical Patient Data Entry</h2>
+          <p class="telemetry-sub">Enter structured diagnostic parameters to run Stacking Ensemble prediction and visual cardiac risk analysis.</p>
+        </div>
+        <div class="telemetry-metrics">
+          <div class="metric-pill">
+            <span class="k">Vector Size</span>
+            <span class="v" id="vectorSize">11 Features</span>
+          </div>
+          <div class="metric-pill">
+            <span class="k">Completed</span>
+            <span class="v" id="bannerCount">0 / 11</span>
+          </div>
+          <div class="metric-pill">
+            <span class="k">Model Engine</span>
+            <span class="v">Stacking ML</span>
+          </div>
+        </div>
+      </div>
+      <svg class="ecg" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true">
+        <path class="ecg-base" pathLength="100" d="M0 32 H60 q8 -10 16 0 H100 l5 6 l7 -28 l7 34 l5 -12 H150 q10 -12 20 0 H260 q8 -10 16 0 H300 l5 6 l7 -28 l7 34 l5 -12 H350 q10 -12 20 0 H460 q8 -10 16 0 H500 l5 6 l7 -28 l7 34 l5 -12 H550 q10 -12 20 0 H600"/>
+        <path class="ecg-trail" pathLength="100" d="M0 32 H60 q8 -10 16 0 H100 l5 6 l7 -28 l7 34 l5 -12 H150 q10 -12 20 0 H260 q8 -10 16 0 H300 l5 6 l7 -28 l7 34 l5 -12 H350 q10 -12 20 0 H460 q8 -10 16 0 H500 l5 6 l7 -28 l7 34 l5 -12 H550 q10 -12 20 0 H600"/>
+        <path class="ecg-tip" pathLength="100" d="M0 32 H60 q8 -10 16 0 H100 l5 6 l7 -28 l7 34 l5 -12 H150 q10 -12 20 0 H260 q8 -10 16 0 H300 l5 6 l7 -28 l7 34 l5 -12 H350 q10 -12 20 0 H460 q8 -10 16 0 H500 l5 6 l7 -28 l7 34 l5 -12 H550 q10 -12 20 0 H600"/>
+      </svg>
+    </section>
+
+    <noscript>
+      <p class="noscript">JavaScript is disabled or blocked in this viewer, so the form cannot build the array. Open this file directly in Chrome, Edge or Firefox.</p>
+    </noscript>
+
+    <div class="workspace">
+      <form id="patientForm" novalidate>
+        <!-- Demographics -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <h2>Demographics</h2>
+            <span>2 Fields</span>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="Age">Age <span class="col-tag">int</span></label>
+              <div class="input-wrap">
+                <input type="number" id="Age" name="Age" min="1" max="120" step="1" placeholder="e.g. 48" required />
+                <span class="unit-tag">years</span>
+              </div>
+            </div>
+            <fieldset class="field">
+              <legend>Sex <span class="col-tag">0 / 1</span></legend>
+              <div class="seg">
+                <input type="radio" id="sex-1" name="Sex" value="1" required /><label for="sex-1">Male <span class="bit">(1)</span></label>
+                <input type="radio" id="sex-0" name="Sex" value="0" /><label for="sex-0">Female <span class="bit">(0)</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
+        <!-- Symptoms -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <h2>Symptoms</h2>
+            <span>2 Fields</span>
+          </div>
+          <div class="grid">
+            <fieldset class="field field-full">
+              <legend>Chest Pain Type <span class="col-tag">0 – 3</span></legend>
+              <div class="seg seg-4 seg-stack">
+                <input type="radio" id="cp-0" name="ChestPainType" value="0" required /><label for="cp-0"><span>Asymptomatic</span> <span class="bit">ASY (0)</span></label>
+                <input type="radio" id="cp-1" name="ChestPainType" value="1" /><label for="cp-1"><span>Atypical Angina</span> <span class="bit">ATA (1)</span></label>
+                <input type="radio" id="cp-2" name="ChestPainType" value="2" /><label for="cp-2"><span>Non-Anginal Pain</span> <span class="bit">NAP (2)</span></label>
+                <input type="radio" id="cp-3" name="ChestPainType" value="3" /><label for="cp-3"><span>Typical Angina</span> <span class="bit">TA (3)</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field field-full">
+              <legend>Exercise-Induced Angina <span class="col-tag">0 / 1</span></legend>
+              <div class="seg">
+                <input type="radio" id="angina-1" name="ExerciseAngina" value="1" required /><label for="angina-1">Yes <span class="bit">(1)</span></label>
+                <input type="radio" id="angina-0" name="ExerciseAngina" value="0" /><label for="angina-0">No <span class="bit">(0)</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
+        <!-- Vitals & Labs -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.5L4.8 18.2A2 2 0 0 0 6.5 21h11a2 2 0 0 0 1.7-2.8L14 9.5V3"/></svg>
+            </div>
+            <h2>Vitals &amp; Labs</h2>
+            <span>3 Fields</span>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="RestingBP">Resting Blood Pressure <span class="col-tag">int</span></label>
+              <div class="input-wrap">
+                <input type="number" id="RestingBP" name="RestingBP" min="50" max="250" step="1" placeholder="e.g. 138" required />
+                <span class="unit-tag">mm Hg</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="Cholesterol">Serum Cholesterol <span class="col-tag">int</span></label>
+              <div class="input-wrap">
+                <input type="number" id="Cholesterol" name="Cholesterol" min="50" max="700" step="1" placeholder="e.g. 214" required />
+                <span class="unit-tag">mg/dL</span>
+              </div>
+            </div>
+            <fieldset class="field field-full">
+              <legend>Fasting Blood Sugar &gt; 120 mg/dL <span class="col-tag">0 / 1</span></legend>
+              <div class="seg">
+                <input type="radio" id="fbs-1" name="FastingBS" value="1" required /><label for="fbs-1">Yes <span class="bit">(1)</span></label>
+                <input type="radio" id="fbs-0" name="FastingBS" value="0" /><label for="fbs-0">No <span class="bit">(0)</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
+        <!-- Cardiac Function & ECG -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h2>Cardiac Function &amp; ECG</h2>
+            <span>4 Fields</span>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="MaxHR">Max Heart Rate <span class="col-tag">int</span></label>
+              <div class="input-wrap">
+                <input type="number" id="MaxHR" name="MaxHR" min="40" max="250" step="1" placeholder="e.g. 108" required />
+                <span class="unit-tag">bpm</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="Oldpeak">Oldpeak (ST Depression) <span class="col-tag">float</span></label>
+              <div class="input-wrap">
+                <input type="number" id="Oldpeak" name="Oldpeak" min="-5" max="10" step="0.1" placeholder="e.g. 1.5" required />
+                <span class="unit-tag">mm</span>
+              </div>
+            </div>
+            <fieldset class="field field-full">
+              <legend>Resting ECG <span class="col-tag">0 – 2</span></legend>
+              <div class="seg seg-3 seg-stack">
+                <input type="radio" id="ecg-0" name="RestingECG" value="0" required /><label for="ecg-0"><span>LV Hypertrophy</span> <span class="bit">LVH (0)</span></label>
+                <input type="radio" id="ecg-1" name="RestingECG" value="1" /><label for="ecg-1"><span>Normal</span> <span class="bit">(1)</span></label>
+                <input type="radio" id="ecg-2" name="RestingECG" value="2" /><label for="ecg-2"><span>ST-T Abnormality</span> <span class="bit">ST (2)</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field field-full">
+              <legend>ST Slope <span class="col-tag">0 – 2</span></legend>
+              <div class="seg seg-3">
+                <input type="radio" id="slope-0" name="ST_Slope" value="0" required /><label for="slope-0">Down <span class="bit">(0)</span></label>
+                <input type="radio" id="slope-1" name="ST_Slope" value="1" /><label for="slope-1">Flat <span class="bit">(1)</span></label>
+                <input type="radio" id="slope-2" name="ST_Slope" value="2" /><label for="slope-2">Up <span class="bit">(2)</span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Predict &amp; Analyze</button>
+            <button type="button" class="btn btn-secondary" id="sampleBtn">Fill sample</button>
+            <button type="button" class="btn btn-secondary" id="resetBtn">Clear</button>
+          </div>
+          <p class="form-error" id="formError" role="alert" hidden></p>
+        </section>
+      </form>
+
+      <!-- Live Numeric Array Inspector -->
+      <aside class="inspector">
+        <section class="card" id="result">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h2>Model Input Array</h2>
+            <span>Live</span>
+          </div>
+
+          <div class="progress-header">
+            <span>Input completion</span>
+            <span id="progressText">0 / 11</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <div class="code-panel" style="margin-top: 16px;">
+            <div class="code-bar">
+              <span>features[] (numeric)</span>
+              <button type="button" class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+            <pre id="featuresOutput">[null, null, null, null, null, null, null, null, null, null, null]</pre>
+          </div>
+
+          <p class="status" id="status" aria-live="polite">Enter patient values on the left to build the numeric feature array.</p>
+          <p class="range-note" id="rangeNote" role="status" hidden></p>
+
+          <div class="prediction-box" id="predictionBox" hidden>
+            <div class="code-bar">
+              <span>Prediction Output (CSV)</span>
+              <div class="code-actions">
+                <button type="button" class="copy-btn" id="copyCsvBtn">Copy CSV</button>
+                <button type="button" class="copy-btn" id="downloadCsvBtn">Download</button>
+              </div>
+            </div>
+            <pre id="predictionOutput"></pre>
+          </div>
+
+          <div class="vector-list" id="vectorList"></div>
+        </section>
+
+        <p class="disclaimer">
+          <strong>Clinical Notice:</strong> For research and educational use only. This tool generates structured inputs and visual summaries for machine learning models and does not replace clinical judgment.
+        </p>
+      </aside>
+    </div>
+
+    <!-- Patient Analytics & Risk Visualization Dashboard -->
+    <section class="analytics-section" id="analyticsDashboard" aria-label="Patient visual analytics dashboard" hidden>
+      <div class="analytics-header">
+        <div>
+          <h2>Patient Risk &amp; Clinical Analytics</h2>
+          <p id="patientProfileSummary">Visual assessment based on the submitted patient profile and Stacking Ensemble model output.</p>
+        </div>
+        <span class="verdict-pill" id="verdictPill">—</span>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- 1. Risk Probability Gauge -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 12l4-4"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <h3>Predicted Heart Failure Risk</h3>
+            <span>Model Output</span>
+          </div>
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 260 156" role="img" aria-label="Heart failure risk probability gauge">
+              <!-- Background arc -->
+              <path class="gauge-track" d="M 30 130 A 100 100 0 0 1 230 130" pathLength="100" />
+              <!-- Dynamic value arc -->
+              <path class="gauge-arc" id="gaugeArc" d="M 30 130 A 100 100 0 0 1 230 130" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" />
+              <!-- Scale ticks -->
+              <text class="gauge-tick" x="26" y="150" text-anchor="middle">0%</text>
+              <text class="gauge-tick" x="130" y="18" text-anchor="middle">50%</text>
+              <text class="gauge-tick" x="234" y="150" text-anchor="middle">100%</text>
+              <!-- Main percentage -->
+              <text class="gauge-pct" id="gaugePct" x="130" y="106" text-anchor="middle">0.0%</text>
+              <text class="gauge-sub" id="gaugeTier" x="130" y="128" text-anchor="middle">AWAITING DATA</text>
+            </svg>
+
+            <div class="split-bar-wrap">
+              <div class="split-labels">
+                <span id="splitRiskLabel" style="color: var(--heart);">Risk: 0%</span>
+                <span id="splitSafeLabel" style="color: var(--success);">Lower-Risk Confidence: 100%</span>
+              </div>
+              <div class="split-track">
+                <div class="split-risk" id="splitRiskBar" style="width: 0%;"></div>
+                <div class="split-safe" id="splitSafeBar" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="model-meta">
+              <div class="meta-chip">
+                <span class="mk">Model</span>
+                <span class="mv">Stacking</span>
+              </div>
+              <div class="meta-chip">
+                <span class="mk">Val Accuracy</span>
+                <span class="mv">88.59%</span>
+              </div>
+              <div class="meta-chip">
+                <span class="mk">ROC-AUC</span>
+                <span class="mv">93.30%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Clinical Strain Radar Chart -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h3>Multi-Axis Clinical Strain Profile</h3>
+            <span>Radar</span>
+          </div>
+          <div class="radar-wrap">
+            <svg class="radar-svg" id="radarSvg" viewBox="0 0 340 270" role="img" aria-label="6-axis patient clinical strain radar chart"></svg>
+            <div class="radar-legend">
+              <span class="legend-item">
+                <span class="legend-swatch" id="radarPatientSwatch" style="background: var(--accent);"></span>
+                This Patient
+              </span>
+              <span class="legend-item">
+                <span class="legend-swatch" style="background: var(--success); opacity: 0.65;"></span>
+                Healthy Reference
+              </span>
+            </div>
+            <div class="radar-tip" id="radarTip">Hover or tap any point on the radar chart to inspect clinical strain details.</div>
+          </div>
+        </section>
+
+        <!-- 3. Biomarkers vs Reference Ranges -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <h3>Vitals vs. Clinical Reference Ranges</h3>
+            <span>Biomarkers</span>
+          </div>
+          <div class="vital-bars" id="vitalBars"></div>
+          <p class="analytics-footnote">
+            Vertical marker (<strong style="color: var(--ink-secondary);">|</strong>) marks the healthy dataset cohort average. Colored bands indicate standard clinical ranges.
+          </p>
+        </section>
+
+        <!-- 4. Categorical Risk Signals & Clinical Flags -->
+        <section class="card">
+          <div class="card-head">
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3>Diagnostic &amp; ECG Signal Breakdown</h3>
+            <span>Indicators</span>
+          </div>
+          <div class="signal-list" id="signalList"></div>
+          <p class="analytics-footnote">
+            Indicator bars reflect standard clinical risk severity for each diagnostic category in the heart-disease cohort.
+          </p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = window.location.protocol === "file:"
+      ? "http://127.0.0.1:8000/predict"
+      : "/predict";
+    const REQUEST_TIMEOUT_MS = 15000;
+
+    const FEATURE_ORDER = [
+      "Age",
+      "Sex",
+      "ChestPainType",
+      "RestingBP",
+      "Cholesterol",
+      "FastingBS",
+      "RestingECG",
+      "MaxHR",
+      "ExerciseAngina",
+      "Oldpeak",
+      "ST_Slope",
+    ];
+
+    const DISPLAY_NAMES = {
+      Age: "Age",
+      Sex: "Sex",
+      ChestPainType: "Chest Pain Type",
+      RestingBP: "Resting Blood Pressure",
+      Cholesterol: "Serum Cholesterol",
+      FastingBS: "Fasting Blood Sugar",
+      RestingECG: "Resting ECG",
+      MaxHR: "Max Heart Rate",
+      ExerciseAngina: "Exercise Angina",
+      Oldpeak: "Oldpeak",
+      ST_Slope: "ST Slope",
+    };
+
+    const SHORT_LABELS = {
+      Age: "Age",
+      Sex: "Sex",
+      ChestPainType: "ChestPain",
+      RestingBP: "RestingBP",
+      Cholesterol: "Cholesterol",
+      FastingBS: "FastingBS",
+      RestingECG: "RestingECG",
+      MaxHR: "MaxHR",
+      ExerciseAngina: "ExAngina",
+      Oldpeak: "Oldpeak",
+      ST_Slope: "ST_Slope",
+    };
+
+    const FLOAT_FIELDS = new Set(["Oldpeak"]);
+
+    const TRAINING_RANGES = {
+      Age: [28, 77],
+      RestingBP: [80, 200],
+      Cholesterol: [85, 603],
+      MaxHR: [60, 202],
+      Oldpeak: [-2.6, 6.2],
+    };
+
+    const form = document.getElementById("patientForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const sampleBtn = document.getElementById("sampleBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyCsvBtn = document.getElementById("copyCsvBtn");
+    const downloadCsvBtn = document.getElementById("downloadCsvBtn");
+    const featuresOutput = document.getElementById("featuresOutput");
+    const predictionBox = document.getElementById("predictionBox");
+    const predictionOutput = document.getElementById("predictionOutput");
+    const statusEl = document.getElementById("status");
+    const formError = document.getElementById("formError");
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const bannerCount = document.getElementById("bannerCount");
+    const vectorList = document.getElementById("vectorList");
+    const themeToggle = document.getElementById("themeToggle");
+    const themeLabel = document.getElementById("themeLabel");
+    const themeIcon = document.getElementById("themeIcon");
+    const readyBadge = document.getElementById("readyBadge");
+    const readyText = document.getElementById("readyText");
+    const vectorSize = document.getElementById("vectorSize");
+    const rangeNote = document.getElementById("rangeNote");
+
+    // Dashboard elements
+    const analyticsDashboard = document.getElementById("analyticsDashboard");
+    const patientProfileSummary = document.getElementById("patientProfileSummary");
+    const verdictPill = document.getElementById("verdictPill");
+    const gaugeArc = document.getElementById("gaugeArc");
+    const gaugePct = document.getElementById("gaugePct");
+    const gaugeTier = document.getElementById("gaugeTier");
+    const splitRiskLabel = document.getElementById("splitRiskLabel");
+    const splitSafeLabel = document.getElementById("splitSafeLabel");
+    const splitRiskBar = document.getElementById("splitRiskBar");
+    const splitSafeBar = document.getElementById("splitSafeBar");
+    const radarSvg = document.getElementById("radarSvg");
+    const radarPatientSwatch = document.getElementById("radarPatientSwatch");
+    const radarTip = document.getElementById("radarTip");
+    const vitalBars = document.getElementById("vitalBars");
+    const signalList = document.getElementById("signalList");
+
+    let lastCsvText = "";
+
+    /* Theme handling */
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      const isDark = theme === "dark";
+      themeLabel.textContent = isDark ? "Light" : "Dark";
+      themeIcon.innerHTML = isDark
+        ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+        : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+    const THEME_KEY = "hf-theme";
+    const darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+    function loadSavedTheme() {
+      try {
+        const saved = localStorage.getItem(THEME_KEY);
+        return saved === "dark" || saved === "light" ? saved : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveTheme(theme) {
+      try {
+        localStorage.setItem(THEME_KEY, theme);
+      } catch { /* ignore */ }
+    }
+
+    applyTheme(loadSavedTheme() || (darkQuery && darkQuery.matches ? "dark" : "light"));
+
+    if (darkQuery) {
+      darkQuery.addEventListener("change", (event) => {
+        if (!loadSavedTheme()) applyTheme(event.matches ? "dark" : "light");
+      });
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      saveTheme(next);
+    });
+
+    function displayName(name) {
+      return DISPLAY_NAMES[name] || name;
+    }
+
+    function formatPrediction(prediction) {
+      if (prediction === null || typeof prediction !== "object" || Array.isArray(prediction)) {
+        throw new Error("Unexpected response format from the server.");
+      }
+      const formatted = { ...prediction };
+      if (typeof formatted.risk_probability === "number") {
+        formatted.risk_probability = `${(formatted.risk_probability * 100).toFixed(1)}%`;
+      }
+      return formatted;
+    }
+
+    function jsonToCsv(obj) {
+      const headers = Object.keys(obj).join(",");
+      const values = Object.values(obj)
+        .map((v) => {
+          const s = String(v);
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        })
+        .join(",");
+      return `${headers}\n${values}`;
+    }
+
+    function parseFeatureValue(name, raw) {
+      if (raw === null || raw === "") return null;
+      const value = Number(raw);
+      if (!Number.isFinite(value)) return null;
+      if (!FLOAT_FIELDS.has(name) && !Number.isInteger(value)) return null;
+      return value;
+    }
+
+    function formatArray(arr) {
+      return JSON.stringify(arr).replace(/,/g, ", ");
+    }
+
+    function renderVectorList(values) {
+      vectorList.innerHTML = FEATURE_ORDER.map((name, index) => {
+        const val = values[index];
+        const filled = val !== null;
+        return `
+          <div class="vec-item ${filled ? "filled" : ""}">
+            <span class="idx">[${index}] ${SHORT_LABELS[name]}</span>
+            <span class="val">${filled ? val : "—"}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function validateForm(formElement) {
+      const problems = [];
+      FEATURE_ORDER.forEach((name) => {
+        const control = formElement.elements.namedItem(name);
+        const isRadioGroup = control instanceof RadioNodeList;
+        const message = isRadioGroup
+          ? (control.value === "" ? "please select an option." : "")
+          : control.validationMessage;
+        const field = (isRadioGroup ? control[0] : control).closest(".field");
+        field.classList.toggle("invalid", message !== "");
+        if (!isRadioGroup) {
+          if (message) control.setAttribute("aria-invalid", "true");
+          else control.removeAttribute("aria-invalid");
+        }
+        if (message) problems.push(`${displayName(name)}: ${message}`);
+      });
+      return problems;
+    }
+
+    function collectLiveFeatures(formElement) {
+      let invalidCount = 0;
+      const values = FEATURE_ORDER.map((name) => {
+        const control = formElement.elements.namedItem(name);
+        if (control instanceof RadioNodeList) {
+          return parseFeatureValue(name, control.value);
+        }
+        const hasInput = control.value !== "" || control.validity.badInput;
+        if (hasInput && !control.validity.valid) {
+          invalidCount += 1;
+          return null;
+        }
+        return parseFeatureValue(name, control.value);
+      });
+      return { values, invalidCount };
+    }
+
+    function collectFeatures(formElement) {
+      const data = new FormData(formElement);
+      return FEATURE_ORDER.map((name) => {
+        const raw = data.get(name);
+        if (raw === null || raw === "") {
+          throw new Error(`Missing value for "${name}".`);
+        }
+        const value = parseFeatureValue(name, raw);
+        if (value === null) {
+          throw new Error(`"${name}" must be a number.`);
+        }
+        return value;
+      });
+    }
+
+    function outOfRangeFields(values) {
+      return FEATURE_ORDER.flatMap((name, index) => {
+        const range = TRAINING_RANGES[name];
+        const value = values[index];
+        if (!range || value === null) return [];
+        if (value >= range[0] && value <= range[1]) return [];
+        return [`${displayName(name)} ${value} (training range ${range[0]}–${range[1]})`];
+      });
+    }
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle("error", isError);
+    }
+
+    function updateLivePreview() {
+      const { values, invalidCount } = collectLiveFeatures(form);
+      const total = FEATURE_ORDER.length;
+      const filledCount = values.filter((v) => v !== null).length;
+      const isComplete = filledCount === total;
+      const pct = Math.round((filledCount / total) * 100);
+
+      progressText.textContent = `${filledCount} / ${total}`;
+      bannerCount.textContent = `${filledCount} / ${total}`;
+      progressFill.style.width = `${pct}%`;
+
+      featuresOutput.textContent = formatArray(values);
+      renderVectorList(values);
+      predictionBox.hidden = true;
+      analyticsDashboard.hidden = true;
+      copyBtn.disabled = !isComplete;
+
+      const state = isComplete ? "ready" : (filledCount > 0 || invalidCount > 0 ? "progress" : "idle");
+      readyBadge.dataset.state = state;
+      readyText.textContent = {
+        idle: "Awaiting input",
+        progress: "Input in progress",
+        ready: "Model input ready",
+      }[state];
+
+      if (invalidCount > 0) {
+        setStatus(`${invalidCount} field(s) have an invalid or out-of-range value and are shown as null.`, true);
+      } else if (filledCount === 0) {
+        setStatus("Enter patient values on the left to build the numeric feature array.");
+      } else if (!isComplete) {
+        setStatus(`Live numeric array (${filledCount}/${total} fields entered).`);
+      } else {
+        setStatus(`All ${total} features ready. Click "Predict & Analyze" to view risk charts.`);
+      }
+
+      const outside = outOfRangeFields(values);
+      rangeNote.hidden = outside.length === 0;
+      if (outside.length > 0) {
+        rangeNote.textContent = `Outside the training data range: ${outside.join("; ")}. The model has not seen values like these, so the result may be unreliable.`;
+      }
+    }
+
+    /* ============================================================
+       PATIENT ANALYTICS RENDERERS (Pure SVG + CSS Variables)
+       ============================================================ */
+    const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+
+    function getRiskColor(prob) {
+      if (prob >= 0.65) return { css: "var(--heart)", tier: "HIGH RISK", cls: "risk-high" };
+      if (prob >= 0.35) return { css: "var(--warn)", tier: "MODERATE RISK", cls: "risk-mod" };
+      return { css: "var(--success)", tier: "LOW RISK", cls: "risk-low" };
+    }
+
+    function renderGauge(prediction) {
+      const prob = clamp(Number(prediction.risk_probability) || 0, 0, 1);
+      const pct = prob * 100;
+      const safePct = 100 - pct;
+      const risk = getRiskColor(prob);
+
+      verdictPill.className = `verdict-pill ${risk.cls}`;
+      verdictPill.textContent = `${prediction.result} (${pct.toFixed(1)}%)`;
+
+      // Reset arc briefly for smooth transition
+      gaugeArc.style.stroke = risk.css;
+      gaugeArc.style.strokeDashoffset = "100";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          gaugeArc.style.strokeDashoffset = String((100 - pct).toFixed(2));
+        });
+      });
+
+      gaugePct.textContent = `${pct.toFixed(1)}%`;
+      gaugeTier.textContent = risk.tier;
+      gaugeTier.style.fill = risk.css;
+
+      splitRiskLabel.textContent = `Predicted Risk: ${pct.toFixed(1)}%`;
+      splitRiskLabel.style.color = risk.css;
+      splitSafeLabel.textContent = `Lower-Risk Prob: ${safePct.toFixed(1)}%`;
+      splitRiskBar.style.width = `${pct.toFixed(1)}%`;
+      splitRiskBar.style.background = risk.css;
+      splitSafeBar.style.width = `${safePct.toFixed(1)}%`;
+    }
+
+    function renderRadar(p, prob) {
+      const risk = getRiskColor(prob);
+      radarPatientSwatch.style.background = risk.css;
+
+      // Normalize 6 clinical strain dimensions (0 = minimal strain, 100 = high clinical strain)
+      const bpScore = clamp(((p.RestingBP - 95) / 85) * 100, 12, 100);
+      const cholScore = clamp(((p.Cholesterol - 140) / 180) * 100, 12, 100);
+      const oldpeakScore = clamp(((Math.max(0, p.Oldpeak)) / 3.2) * 100, 10, 100);
+      const hrDeficitScore = clamp(((180 - p.MaxHR) / 90) * 100, 10, 100);
+
+      const cpRiskMap = { 0: 60, 1: 12, 2: 22, 3: 32 };
+      const symptomScore = clamp((cpRiskMap[p.ChestPainType] ?? 20) + (p.ExerciseAngina === 1 ? 40 : 0), 12, 100);
+
+      const slopeRiskMap = { 0: 68, 1: 60, 2: 12 };
+      const ecgRiskMap = { 0: 22, 1: 6, 2: 28 };
+      const ecgStrainScore = clamp(
+        (slopeRiskMap[p.ST_Slope] ?? 20) + (ecgRiskMap[p.RestingECG] ?? 10) + (p.FastingBS === 1 ? 10 : 0),
+        12,
+        100
+      );
+
+      const axes = [
+        { label: "Blood Pressure", score: bpScore, detail: `Resting BP: ${p.RestingBP} mm Hg (strain ${Math.round(bpScore)}%)` },
+        { label: "Cholesterol", score: cholScore, detail: `Cholesterol: ${p.Cholesterol} mg/dL (strain ${Math.round(cholScore)}%)` },
+        { label: "ST Depression", score: oldpeakScore, detail: `Oldpeak: ${p.Oldpeak} mm (strain ${Math.round(oldpeakScore)}%)` },
+        { label: "HR Deficit", score: hrDeficitScore, detail: `Max HR: ${p.MaxHR} bpm — lower peak HR increases risk (strain ${Math.round(hrDeficitScore)}%)` },
+        { label: "Symptom Burden", score: symptomScore, detail: `Chest Pain + Exercise Angina composite strain: ${Math.round(symptomScore)}%` },
+        { label: "ECG & Slope", score: ecgStrainScore, detail: `ST Slope, Resting ECG & Fasting BS composite strain: ${Math.round(ecgStrainScore)}%` },
+      ];
+
+      const healthyBaseline = [34, 30, 15, 32, 16, 18];
+
+      const cx = 170;
+      const cy = 135;
+      const maxR = 88;
+      const count = axes.length;
+
+      const pointAt = (idx, pct) => {
+        const angle = (Math.PI * 2 * idx) / count - Math.PI / 2;
+        const r = (pct / 100) * maxR;
+        return [cx + Math.cos(angle) * r, cy + Math.sin(angle) * r];
+      };
+
+      const polygonPoints = (scores) =>
+        scores.map((s, i) => pointAt(i, s).map((n) => n.toFixed(1)).join(",")).join(" ");
+
+      const rings = [25, 50, 75, 100]
+        .map((level) => `<polygon class="radar-grid" points="${polygonPoints(Array(count).fill(level))}" />`)
+        .join("");
+
+      const spokes = axes
+        .map((_, i) => {
+          const [x, y] = pointAt(i, 100);
+          return `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" />`;
+        })
+        .join("");
+
+      const labels = axes
+        .map((a, i) => {
+          const [x, y] = pointAt(i, 124);
+          let anchor = "middle";
+          if (x < cx - 18) anchor = "end";
+          else if (x > cx + 18) anchor = "start";
+          return `<text class="radar-label" x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="${anchor}">${a.label}</text>`;
+        })
+        .join("");
+
+      const dots = axes
+        .map((a, i) => {
+          const [x, y] = pointAt(i, a.score);
+          return `<circle class="radar-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.8" fill="${risk.css}" data-detail="${a.detail}"><title>${a.detail}</title></circle>`;
+        })
+        .join("");
+
+      radarSvg.innerHTML = `
+        ${rings}
+        ${spokes}
+        <polygon class="radar-ref" points="${polygonPoints(healthyBaseline)}" />
+        <polygon class="radar-patient" points="${polygonPoints(axes.map((a) => a.score))}" fill="color-mix(in srgb, ${risk.css} 20%, transparent)" stroke="${risk.css}" />
+        ${dots}
+        ${labels}
+      `;
+
+      radarTip.textContent = "Hover or tap any point on the radar chart to inspect clinical strain details.";
+      radarSvg.querySelectorAll(".radar-dot").forEach((dot) => {
+        const showDetail = () => { radarTip.textContent = dot.dataset.detail; };
+        dot.addEventListener("mouseenter", showDetail);
+        dot.addEventListener("click", showDetail);
+      });
+    }
+
+    function renderVitalBars(p) {
+      const items = [
+        {
+          name: "Resting Blood Pressure",
+          value: `${p.RestingBP} mm Hg`,
+          raw: p.RestingBP,
+          min: 80,
+          max: 200,
+          ref: 130,
+          refLabel: "Cohort healthy avg: 130",
+          zones: [
+            { cls: "zone-green", pct: ((120 - 80) / 120) * 100 },
+            { cls: "zone-amber", pct: ((140 - 120) / 120) * 100 },
+            { cls: "zone-red", pct: ((200 - 140) / 120) * 100 },
+          ],
+          status: p.RestingBP < 120
+            ? { label: "Optimal", cls: "ok", color: "var(--success)" }
+            : p.RestingBP < 140
+              ? { label: "Elevated", cls: "warn", color: "var(--warn)" }
+              : { label: "High BP", cls: "high", color: "var(--heart)" },
+          leftLabel: "80",
+          rightLabel: "200 mm Hg",
+        },
+        {
+          name: "Serum Cholesterol",
+          value: `${p.Cholesterol} mg/dL`,
+          raw: p.Cholesterol,
+          min: 100,
+          max: 400,
+          ref: 237,
+          refLabel: "Cohort median: 237",
+          zones: [
+            { cls: "zone-green", pct: ((200 - 100) / 300) * 100 },
+            { cls: "zone-amber", pct: ((240 - 200) / 300) * 100 },
+            { cls: "zone-red", pct: ((400 - 240) / 300) * 100 },
+          ],
+          status: p.Cholesterol < 200
+            ? { label: "Desirable", cls: "ok", color: "var(--success)" }
+            : p.Cholesterol < 240
+              ? { label: "Borderline", cls: "warn", color: "var(--warn)" }
+              : { label: "High", cls: "high", color: "var(--heart)" },
+          leftLabel: "100",
+          rightLabel: "400+ mg/dL",
+        },
+        {
+          name: "Max Heart Rate (Exercise)",
+          value: `${p.MaxHR} bpm`,
+          raw: p.MaxHR,
+          min: 60,
+          max: 210,
+          ref: 148,
+          refLabel: "Healthy avg: 148 bpm",
+          zones: [
+            { cls: "zone-red", pct: ((120 - 60) / 150) * 100 },
+            { cls: "zone-amber", pct: ((145 - 120) / 150) * 100 },
+            { cls: "zone-green", pct: ((210 - 145) / 150) * 100 },
+          ],
+          status: p.MaxHR >= 145
+            ? { label: "Strong Reserve", cls: "ok", color: "var(--success)" }
+            : p.MaxHR >= 120
+              ? { label: "Moderate", cls: "warn", color: "var(--warn)" }
+              : { label: "Low Peak HR", cls: "high", color: "var(--heart)" },
+          leftLabel: "60",
+          rightLabel: "210 bpm",
+        },
+        {
+          name: "Oldpeak (ST Depression)",
+          value: `${p.Oldpeak} mm`,
+          raw: p.Oldpeak,
+          min: -1,
+          max: 5,
+          ref: 0.4,
+          refLabel: "Healthy avg: 0.4 mm",
+          zones: [
+            { cls: "zone-green", pct: ((0 - (-1)) / 6) * 100 },
+            { cls: "zone-amber", pct: ((2 - 0) / 6) * 100 },
+            { cls: "zone-red", pct: ((5 - 2) / 6) * 100 },
+          ],
+          status: p.Oldpeak <= 0
+            ? { label: "Normal", cls: "ok", color: "var(--success)" }
+            : p.Oldpeak <= 1.0
+              ? { label: "Mild", cls: "warn", color: "var(--warn)" }
+              : p.Oldpeak <= 2.0
+                ? { label: "Moderate", cls: "warn", color: "var(--warn)" }
+                : { label: "Severe", cls: "high", color: "var(--heart)" },
+          leftLabel: "-1.0",
+          rightLabel: "5.0+ mm",
+        },
+      ];
+
+      vitalBars.innerHTML = items.map((item) => {
+        const pos = clamp(((item.raw - item.min) / (item.max - item.min)) * 100, 2, 98);
+        const refPos = clamp(((item.ref - item.min) / (item.max - item.min)) * 100, 2, 98);
+        const zonesHtml = item.zones
+          .map((z) => `<div class="range-zone ${z.cls}" style="width: ${z.pct.toFixed(2)}%;"></div>`)
+          .join("");
+
+        return `
+          <div class="vital-row">
+            <div class="vital-row-top">
+              <span class="vital-name">${item.name}</span>
+              <div class="vital-val-group">
+                <span class="vital-num">${item.value}</span>
+                <span class="pill-status ${item.status.cls}">${item.status.label}</span>
+              </div>
+            </div>
+            <div class="range-track-outer">
+              ${zonesHtml}
+              <span class="ref-marker" style="left: ${refPos.toFixed(1)}%;" title="${item.refLabel}"></span>
+              <span class="patient-pin" style="left: ${pos.toFixed(1)}%; background: ${item.status.color};" title="Patient: ${item.value}"></span>
+            </div>
+            <div class="vital-scale">
+              <span>${item.leftLabel}</span>
+              <span>${item.refLabel}</span>
+              <span>${item.rightLabel}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderSignals(p) {
+      const slopeMap = {
+        0: { text: "Downsloping", cls: "high", badge: "High Risk", pct: 92, color: "var(--heart)" },
+        1: { text: "Flat", cls: "high", badge: "Elevated Risk", pct: 85, color: "var(--heart)" },
+        2: { text: "Upsloping", cls: "ok", badge: "Favorable", pct: 18, color: "var(--success)" },
+      };
+      const cpMap = {
+        0: { text: "Asymptomatic (ASY)", cls: "high", badge: "Silent Risk", pct: 82, color: "var(--heart)" },
+        1: { text: "Atypical Angina (ATA)", cls: "ok", badge: "Lower Risk", pct: 20, color: "var(--success)" },
+        2: { text: "Non-Anginal Pain (NAP)", cls: "warn", badge: "Moderate", pct: 38, color: "var(--warn)" },
+        3: { text: "Typical Angina (TA)", cls: "warn", badge: "Watch", pct: 50, color: "var(--warn)" },
+      };
+      const anginaInfo = p.ExerciseAngina === 1
+        ? { text: "Present (Yes)", cls: "high", badge: "High Risk", pct: 88, color: "var(--heart)" }
+        : { text: "Absent (No)", cls: "ok", badge: "Normal", pct: 16, color: "var(--success)" };
+
+      const ecgMap = {
+        0: { text: "LV Hypertrophy (LVH)", cls: "warn", badge: "Structural", pct: 58, color: "var(--warn)" },
+        1: { text: "Normal Sinus", cls: "ok", badge: "Normal", pct: 15, color: "var(--success)" },
+        2: { text: "ST-T Abnormality", cls: "high", badge: "Abnormal", pct: 74, color: "var(--heart)" },
+      };
+
+      const fbsInfo = p.FastingBS === 1
+        ? { text: "> 120 mg/dL (Elevated)", cls: "warn", badge: "Elevated", pct: 68, color: "var(--warn)" }
+        : { text: "<= 120 mg/dL (Normal)", cls: "ok", badge: "Normal", pct: 18, color: "var(--success)" };
+
+      const signals = [
+        { title: "ST Segment Slope", ...slopeMap[p.ST_Slope] },
+        { title: "Chest Pain Classification", ...cpMap[p.ChestPainType] },
+        { title: "Exercise-Induced Angina", ...anginaInfo },
+        { title: "Resting ECG Finding", ...ecgMap[p.RestingECG] },
+        { title: "Fasting Blood Sugar", ...fbsInfo },
+      ];
+
+      signalList.innerHTML = signals.map((s) => `
+        <div class="signal-item">
+          <div class="signal-top">
+            <div>
+              <div class="signal-title">${s.title}</div>
+              <div class="signal-sub">${s.text}</div>
+            </div>
+            <span class="pill-status ${s.cls}">${s.badge}</span>
+          </div>
+          <div class="signal-bar-bg">
+            <div class="signal-bar-fill" style="width: ${s.pct}%; background: ${s.color};"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderAnalyticsDashboard(features, prediction) {
+      const patient = {};
+      FEATURE_ORDER.forEach((name, idx) => { patient[name] = features[idx]; });
+
+      const sexLabel = patient.Sex === 1 ? "Male" : "Female";
+      patientProfileSummary.textContent =
+        `Profile: ${patient.Age}-year-old ${sexLabel} • BP ${patient.RestingBP} mm Hg • Cholesterol ${patient.Cholesterol} mg/dL • Max HR ${patient.MaxHR} bpm`;
+
+      analyticsDashboard.hidden = false;
+      renderGauge(prediction);
+      renderRadar(patient, Number(prediction.risk_probability) || 0);
+      renderVitalBars(patient);
+      renderSignals(patient);
+
+      analyticsDashboard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function describeServerError(response) {
+      const base = `Server responded with ${response.status} ${response.statusText}`.trim();
+      try {
+        const body = await response.json();
+        const detail = body && body.detail;
+        if (typeof detail === "string") return `${base}: ${detail}`;
+        if (Array.isArray(detail)) {
+          const messages = detail
+            .map((item) => String((item && item.msg) || "").replace(/^Value error,\s*/, ""))
+            .filter(Boolean);
+          if (messages.length > 0) return `${base}: ${messages.join("; ")}`;
+        }
+      } catch { /* ignore */ }
+      return `${base}.`;
+    }
+
+    async function requestPrediction(features) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ features }),
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error(await describeServerError(response));
+        }
+        return await response.json();
+      } catch (error) {
+        if (error.name === "AbortError") {
+          throw new Error(`Request timed out after ${REQUEST_TIMEOUT_MS / 1000} seconds.`);
+        }
+        throw error;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const problems = validateForm(form);
+      if (problems.length > 0) {
+        formError.textContent = `Please fix the following before continuing:\n${problems.join("\n")}`;
+        formError.hidden = false;
+        formError.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+      }
+      formError.hidden = true;
+      predictionBox.hidden = true;
+
+      let features;
+      try {
+        features = collectFeatures(form);
+      } catch (error) {
+        setStatus(error.message, true);
+        return;
+      }
+
+      featuresOutput.textContent = formatArray(features);
+      renderVectorList(features);
+
+      submitBtn.disabled = true;
+      setStatus("Requesting prediction...");
+      try {
+        const prediction = await requestPrediction(features);
+        lastCsvText = jsonToCsv(formatPrediction(prediction));
+        predictionOutput.textContent = lastCsvText;
+        predictionBox.hidden = false;
+        setStatus("Prediction received. Patient analytics updated below.");
+        renderAnalyticsDashboard(features, prediction);
+      } catch (error) {
+        setStatus(`Prediction failed: ${error.message}`, true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    function handleFieldChange(event) {
+      const field = event.target.closest(".field");
+      if (field) field.classList.remove("invalid");
+      event.target.removeAttribute("aria-invalid");
+      updateLivePreview();
+    }
+
+    form.addEventListener("input", handleFieldChange);
+    form.addEventListener("change", handleFieldChange);
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      helper.setAttribute("readonly", "");
+      helper.style.cssText = "position:fixed;top:-1000px;opacity:0;";
+      document.body.appendChild(helper);
+      helper.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(helper);
+      if (!ok) throw new Error("Copy command was rejected.");
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      if (copyBtn.disabled) return;
+      try {
+        await copyText(featuresOutput.textContent);
+        copyBtn.textContent = "Copied!";
+      } catch {
+        copyBtn.textContent = "Failed";
+      }
+      setTimeout(() => { copyBtn.textContent = "Copy"; }, 1600);
+    });
+
+    copyCsvBtn.addEventListener("click", async () => {
+      if (!lastCsvText) return;
+      try {
+        await copyText(lastCsvText);
+        copyCsvBtn.textContent = "Copied!";
+      } catch {
+        copyCsvBtn.textContent = "Failed";
+      }
+      setTimeout(() => { copyCsvBtn.textContent = "Copy CSV"; }, 1600);
+    });
+
+    downloadCsvBtn.addEventListener("click", () => {
+      if (!lastCsvText) return;
+      const blob = new Blob([lastCsvText], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "heart-failure-prediction.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    sampleBtn.addEventListener("click", () => {
+      const sample = {
+        Age: 48,
+        Sex: "0",
+        ChestPainType: "0",
+        RestingBP: 138,
+        Cholesterol: 214,
+        FastingBS: "0",
+        RestingECG: "1",
+        MaxHR: 108,
+        ExerciseAngina: "1",
+        Oldpeak: 1.5,
+        ST_Slope: "1",
+      };
+      Object.entries(sample).forEach(([key, val]) => {
+        const control = form.elements.namedItem(key);
+        if (control instanceof RadioNodeList) {
+          control.value = String(val);
+        } else if (control) {
+          control.value = val;
+        }
+      });
+      formError.hidden = true;
+      form.querySelectorAll(".invalid").forEach((el) => el.classList.remove("invalid"));
+      form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+      updateLivePreview();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      form.reset();
+      formError.hidden = true;
+      form.querySelectorAll(".invalid").forEach((el) => el.classList.remove("invalid"));
+      form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+      predictionBox.hidden = true;
+      analyticsDashboard.hidden = true;
+      updateLivePreview();
+    });
+
+    vectorSize.textContent = `${FEATURE_ORDER.length} Features`;
+    updateLivePreview();
+  </script>
+</body>
+</html>
